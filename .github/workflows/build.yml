@@ -2,12 +2,10 @@ name: Build
 
 on:
   push:
-    tags:
-      - 'v*' # Triggers a release when you push a tag like v1.0.0
   workflow_dispatch:
 
 permissions:
-  contents: write # Required to create a GitHub Release
+  contents: write
 
 jobs:
   build:
@@ -40,17 +38,29 @@ jobs:
           gmake package FINALPACKAGE=1 THEOS_PACKAGE_SCHEME=rootless
           ls -l packages
 
+      - name: Prepare release assets
+        run: |
+          mkdir -p release_assets
+          DEB_FILE=$(find . -path "*/packages/*.deb" | head -n 1)
+          cp "$DEB_FILE" release_assets/
+          
+          # Extract just the .dylib from the .deb
+          mkdir -p deb_extracted
+          cd deb_extracted
+          ar -x "../$DEB_FILE"
+          tar -xf data.tar.*
+          find . -type f -name "*.dylib" -exec cp {} ../release_assets/ \;
+          ls -la ../release_assets
+
       - name: Upload to Actions Artifacts
         uses: actions/upload-artifact@v7
         with:
-          name: noads-deb
-          path: "**/packages/*.deb"
+          name: noads-release
+          path: release_assets/*
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v3
         with:
           tag_name: latest
           name: Latest Build
-          files: |
-            **/packages/*.deb
-            **/packages/*.dylib
+          files: release_assets/*
