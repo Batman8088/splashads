@@ -8,7 +8,7 @@ jobs:
   build:
     runs-on: macos-latest
     env:
-      THEOS: theos
+      THEOS: ${{ github.workspace }}/theos
     steps:
       - uses: actions/checkout@v4
 
@@ -28,14 +28,16 @@ jobs:
           path: theos/sdks
 
       - name: Build package
+        # Uncomment and change the line below if your Makefile is in a subfolder:
+        # working-directory: ./your-subfolder-name
         run: |
           set -euo pipefail
           brew install make xz ldid
           echo "$(brew --prefix make)/libexec/gnubin" >> $GITHUB_PATH
-          gmake clean package FINALPACKAGE=1 THEOS_PACKAGE_SCHEME=rootless
+          gmake package FINALPACKAGE=1 THEOS_PACKAGE_SCHEME=rootless
           ls -l packages
 
       - uses: actions/upload-artifact@v4
         with:
           name: noads-deb
-          path: packages/*.deb
+          path: "**/packages/*.deb"
