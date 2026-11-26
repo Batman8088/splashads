@@ -20,12 +20,13 @@ jobs:
           submodules: recursive
           path: theos
 
-      - name: Checkout theos/sdks
+      - name: Checkout iOS SDK
         uses: actions/checkout@v7
         with:
-          repository: theos/sdks
-          sparse-checkout: iPhoneOS18.5.sdk
+          repository: Tonwalter888/iOS-18.6-SDK
+          sparse-checkout: iPhoneOS18.6.sdk
           path: theos/sdks
+
 
       - name: Build package
         # Uncomment and change the line below if your Makefile is in a subfolder:
