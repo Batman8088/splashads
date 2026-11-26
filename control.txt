@@ -1,0 +1,9 @@
+Package: com.you.noads
+Name: NoAds
+Version: 1.0
+Architecture: iphoneos-arm64
+Description: Blocks splash and overlay ads
+Maintainer: you
+Author: you
+Section: Tweaks
+Depends: ellekit
