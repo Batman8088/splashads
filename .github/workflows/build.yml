@@ -39,12 +39,11 @@ jobs:
           sparse-checkout: iPhoneOS18.6.sdk
           path: theos/sdks
 
-      - name: Build package
+            - name: Build package
         run: |
           set -euo pipefail
-          HOMEBREW_NO_AUTO_UPDATE=1 brew install make xz ldid
-          echo "$(brew --prefix make)/libexec/gnubin" >> $GITHUB_PATH
-          gmake package FINALPACKAGE=1 THEOS_PACKAGE_SCHEME=rootless
+          HOMEBREW_NO_AUTO_UPDATE=1 brew install ldid
+          make package FINALPACKAGE=1 THEOS_PACKAGE_SCHEME=rootless
           ls -l packages
 
       - name: Prepare release assets
