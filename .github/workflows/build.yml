@@ -10,10 +10,10 @@ jobs:
     env:
       THEOS: ${{ github.workspace }}/theos
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Checkout theos/theos
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           repository: theos/theos
           ref: master
@@ -21,10 +21,10 @@ jobs:
           path: theos
 
       - name: Checkout theos/sdks
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           repository: theos/sdks
-          sparse-checkout: iPhoneOS16.5.sdk
+          sparse-checkout: iPhoneOS18.5.sdk
           path: theos/sdks
 
       - name: Build package
@@ -37,7 +37,7 @@ jobs:
           gmake package FINALPACKAGE=1 THEOS_PACKAGE_SCHEME=rootless
           ls -l packages
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: noads-deb
           path: "**/packages/*.deb"
