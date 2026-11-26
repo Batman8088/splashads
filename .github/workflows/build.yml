@@ -47,7 +47,8 @@ jobs:
           path: "**/packages/*.deb"
 
       - name: Create GitHub Release
-        if: github.ref_type == 'tag'
         uses: softprops/action-gh-release@v3
         with:
+          tag_name: latest
+          name: Latest Build
           files: "**/packages/*.deb"
