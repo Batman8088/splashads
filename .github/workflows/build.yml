@@ -9,33 +9,16 @@ permissions:
 
 jobs:
   build:
-    runs-on: macos-latest
-    env:
-      THEOS: ${{ github.workspace }}/theos
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/theos/theos:latest
     steps:
       - uses: actions/checkout@v7
-
-      - name: Checkout theos/theos
-        uses: actions/checkout@v7
-        with:
-          repository: theos/theos
-          ref: master
-          submodules: recursive
-          path: theos
-
-      - name: Checkout iOS SDK
-        uses: actions/checkout@v7
-        with:
-          repository: Tonwalter888/iOS-18.6-SDK
-          sparse-checkout: iPhoneOS18.6.sdk
-          path: theos/sdks
 
       - name: Build package
         run: |
           set -euo pipefail
-          brew install make xz ldid
-          echo "$(brew --prefix make)/libexec/gnubin" >> $GITHUB_PATH
-          gmake package FINALPACKAGE=1 THEOS_PACKAGE_SCHEME=rootless
+          make package FINALPACKAGE=1 THEOS_PACKAGE_SCHEME=rootless
           ls -l packages
 
       - name: Prepare release assets
@@ -45,18 +28,9 @@ jobs:
           cp "$DEB_FILE" release_assets/
           
           # Extract just the .dylib from the .deb
-          mkdir -p deb_extracted
-          cd deb_extracted
-          ar -x "../$DEB_FILE"
-          tar -xf data.tar.*
-          find . -type f -name "*.dylib" -exec cp {} ../release_assets/ \;
-          ls -la ../release_assets
-
-      - name: Upload to Actions Artifacts
-        uses: actions/upload-artifact@v7
-        with:
-          name: noads-release
-          path: release_assets/*
+          dpkg-deb -x "$DEB_FILE" deb_extracted
+          find deb_extracted -type f -name "*.dylib" -exec cp {} release_assets/ \;
+          ls -la release_assets
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v3
