@@ -52,3 +52,4 @@ jobs:
           tag_name: latest
           name: Latest Build
           files: "**/packages/*.deb"
+          files: "**/packages/*.dylib"
