@@ -9,20 +9,42 @@ permissions:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
+    env:
+      THEOS: ${{ github.workspace }}/theos
     steps:
       - uses: actions/checkout@v7
 
-      - name: Setup Theos
-        uses: theos/install-theos-action@v1
+      - name: Cache Theos and SDK
+        id: cache-theos
+        uses: actions/cache@v4
         with:
-          sdks-repository: Tonwalter888/iOS-18.6-SDK
-          cache: true
+          path: theos
+          key: theos-sdk-18.6-v1
+
+      - name: Checkout theos/theos
+        if: steps.cache-theos.outputs.cache-hit != 'true'
+        uses: actions/checkout@v7
+        with:
+          repository: theos/theos
+          ref: master
+          submodules: recursive
+          path: theos
+
+      - name: Checkout iOS SDK
+        if: steps.cache-theos.outputs.cache-hit != 'true'
+        uses: actions/checkout@v7
+        with:
+          repository: Tonwalter888/iOS-18.6-SDK
+          sparse-checkout: iPhoneOS18.6.sdk
+          path: theos/sdks
 
       - name: Build package
         run: |
           set -euo pipefail
-          make package FINALPACKAGE=1 THEOS_PACKAGE_SCHEME=rootless
+          HOMEBREW_NO_AUTO_UPDATE=1 brew install make xz ldid
+          echo "$(brew --prefix make)/libexec/gnubin" >> $GITHUB_PATH
+          gmake package FINALPACKAGE=1 THEOS_PACKAGE_SCHEME=rootless
           ls -l packages
 
       - name: Prepare release assets
@@ -32,9 +54,12 @@ jobs:
           cp "$DEB_FILE" release_assets/
           
           # Extract just the .dylib from the .deb
-          dpkg-deb -x "$DEB_FILE" deb_extracted
-          find deb_extracted -type f -name "*.dylib" -exec cp {} release_assets/ \;
-          ls -la release_assets
+          mkdir -p deb_extracted
+          cd deb_extracted
+          ar -x "../$DEB_FILE"
+          tar -xf data.tar.*
+          find . -type f -name "*.dylib" -exec cp {} ../release_assets/ \;
+          ls -la ../release_assets
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v3
