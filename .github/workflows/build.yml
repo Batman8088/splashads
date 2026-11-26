@@ -15,7 +15,7 @@ jobs:
     env:
       THEOS: ${{ github.workspace }}/theos
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Checkout theos/theos
         uses: actions/checkout@v7
