@@ -10,10 +10,14 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
-    container:
-      image: ghcr.io/theos/theos:latest
     steps:
       - uses: actions/checkout@v7
+
+      - name: Setup Theos
+        uses: theos/install-theos-action@v1
+        with:
+          sdks-repository: Tonwalter888/iOS-18.6-SDK
+          cache: true
 
       - name: Build package
         run: |
