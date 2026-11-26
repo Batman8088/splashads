@@ -51,5 +51,5 @@ jobs:
         with:
           tag_name: latest
           name: Latest Build
-          files: "**/packages/*.deb"
-          files: "**/packages/*.dylib"
+          files: **/packages/*.deb
+          files: **/packages/*.dylib
